@@ -14,36 +14,28 @@ import {
     PaginationNext,
     PaginationPrev,
 } from '@/components/ui/pagination'
-import type { Categories } from '@/types'
 
-// Props menerima data kategori
 const props = defineProps<{
-    items: { data: Categories[]; meta: { total: number },total: number, per_page: number,last_page_url: number };
+    items: any
 }>()
 
-// Emit untuk mengirim event ke parent
 const emit = defineEmits<{
     (e: 'update:page', page: number): void;
 }>()
-// State halaman saat ini ambil query string dari URL
 
 const urlParams = new URLSearchParams(window.location.search);
 const url = ref(urlParams.get('page') || 1);
 
 
-const currentPage = ref(url) // State halaman saat ini
+const currentPage = ref(url)
 
-const totalPages = ref(Math.ceil(props.items.total / 10)) // Total halaman
-
-// Fungsi untuk mengubah halaman dan emit ke parent
+const totalPages = ref(Math.ceil(props.items.total / 10))
 function handlePageChange(page: number) {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page
         emit('update:page', page)
     }
 }
-
-// Watch perubahan halaman untuk emit (tidak diperlukan jika v-model digunakan)
 watch(currentPage, (newPage) => {
     emit('update:page', newPage)
 })
@@ -51,11 +43,13 @@ watch(currentPage, (newPage) => {
 
 <template>
     <Pagination v-model:page="currentPage"
+                v-if="items.per_page < items.total"
                 :items-per-page="props.items.per_page"
                 :total="props.items.total"
                 :sibling-count="1"
                 show-edges
                 :default-page="1">
+
         <PaginationList v-slot="{ items }" class="flex items-center gap-1">
             <PaginationFirst @click="handlePageChange(1)" />
             <PaginationPrev @click="handlePageChange(currentPage - 1)" />

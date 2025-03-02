@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,8 +17,8 @@ class CategoryController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('category/index', [
-            'categories' => Category::where('name','like','%'.request()->name."%")->paginate(3),
+        return Inertia::render('category/Index', [
+            'categories' => Category::where('name','like','%'.request()->search."%")->orderBy('created_at','desc')->paginate(10),
         ]);
     }
 
@@ -32,9 +33,10 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCategoryRequest $request)
+    public function store(StoreCategoryRequest $request): RedirectResponse
     {
-        //
+        Category::create($request->validated());
+        return to_route('categories.index');
     }
 
     /**
@@ -56,16 +58,18 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCategoryRequest $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category): RedirectResponse
     {
-        //
+        $category->update($request->validated());
+        return to_route('categories.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function destroy(Category $category): RedirectResponse
     {
-        //
+        $category->delete();
+        return to_route('categories.index');
     }
 }
